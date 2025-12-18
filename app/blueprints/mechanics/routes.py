@@ -89,6 +89,6 @@ def delete_mechanic(mechanic_id):
 @mechanics_bp.route('/popular', methods=['GET'])
 def popularity():
     query = select(Mechanic)
-    mechanics= db.session.execute(query).scalars().all()
-    mechanics.sort(key=lambda mechanic: len(ticket_mechanic), reverse=True)
-    return mechanic_schema.load(mechanics),200
+    mechanics = db.session.execute(query).scalars().all()
+    mechanics.sort(key=lambda m: len(m.service_tickets), reverse=True)
+    return mechanics_schema.jsonify(mechanics), 200
