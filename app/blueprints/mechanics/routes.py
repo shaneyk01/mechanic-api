@@ -3,24 +3,8 @@ from marshmallow import ValidationError
 from sqlalchemy import select, delete
 from sqlalchemy.exc import SQLAlchemyError
 from . import mechanics_bp
-from .schemas import mechanic_schema, mechanics_schema,login_schema
-from app.utils.auth import encode_token, mechanic_token_required, token_required
+from .schemas import mechanic_schema, mechanics_schema
 from app.models import Mechanic, db, ticket_mechanic
-
-@mechanics_bp.route('/login', methods=['POST'])
-def login():
-    try:
-        creds = login_schema.load(request.json)
-    except ValidationError as e:
-        return jsonify(e.messages), 400
-    query = select(Mechanic).where(Mechanic.email == creds['email'])
-    mechanic = db.session.execute(query).scalars().first()
-
-    if mechanic and mechanic.password == creds['password']:
-        token = encode_token(mechanic.id, role='mechanic')
-        return jsonify({'token': token}), 200
-    else:
-        return jsonify({'message': 'Invalid email or password'}), 401
 
 
 @mechanics_bp.route('/', methods=['POST'])
@@ -48,7 +32,6 @@ def get_mechanics():
     return mechanics_schema.jsonify(mechanics), 200
 
 @mechanics_bp.route('/<int:mechanic_id>', methods=['PUT'])
-@mechanic_token_required
 def update_mechanic(mechanic_id):
     mechanic = db.session.get(Mechanic, mechanic_id)
     if not mechanic:
@@ -61,8 +44,6 @@ def update_mechanic(mechanic_id):
         setattr(mechanic, key, value)
     db.session.commit()
     return mechanic_schema.jsonify(mechanic), 200
-
-
 
 @mechanics_bp.route('/<int:mechanic_id>', methods=['DELETE'])
 def delete_mechanic(mechanic_id):
@@ -84,11 +65,3 @@ def delete_mechanic(mechanic_id):
     except SQLAlchemyError as e:
         db.session.rollback()
         return jsonify({'error': 'Deletion failed', 'detail': str(e)}), 500
-
-
-@mechanics_bp.route('/popular', methods=['GET'])
-def popularity():
-    query = select(Mechanic)
-    mechanics = db.session.execute(query).scalars().all()
-    mechanics.sort(key=lambda m: len(m.service_tickets), reverse=True)
-    return mechanics_schema.jsonify(mechanics), 200

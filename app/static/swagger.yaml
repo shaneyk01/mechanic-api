@@ -5,12 +5,16 @@ info:
   description: API for customers, mechanics, service tickets, and inventory.
 servers:
   - url: /
+
+
 tags:
   - name: Customers
   - name: Mechanic
   - name: ServiceTickets
   - name: Inventory
+
 components:
+ 
   securitySchemes:
     bearerAuth:
       type: http
@@ -22,11 +26,15 @@ components:
       properties:
         message:
           type: string
+    
     Token:
       type: object
       properties:
         token:
           type: string
+    
+    
+    
     Customer:
       type: object
       properties:
@@ -44,6 +52,8 @@ components:
           type: string
           writeOnly: true
       required: [name, email, password]
+    
+    
     Mechanic:
       type: object
       properties:
@@ -61,6 +71,10 @@ components:
           type: string
           writeOnly: true
       required: [name, email, salary, password]
+   
+   
+   
+   
     MechanicRef:
       type: object
       properties:
@@ -70,6 +84,9 @@ components:
           type: string
         email:
           type: string
+    
+    
+    
     Inventory:
       type: object
       properties:
@@ -82,6 +99,8 @@ components:
           type: number
           format: float
       required: [name, price]
+    
+    
     ServiceTicket:
       type: object
       properties:
@@ -100,6 +119,8 @@ components:
           items:
             $ref: '#/components/schemas/MechanicRef'
       required: [date, customer_id, service_descr]
+    
+    
     EditTicket:
       type: object
       properties:
@@ -112,6 +133,11 @@ components:
           items:
             type: integer
       required: [add_mechanic_ids, remove_mechanic_ids]
+
+
+
+
+
 paths:
   /customers/:
     post:
@@ -144,6 +170,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Customer'
+  
+  
+  
+  
+  
   /customers/login:
     post:
       tags: [Customers]
@@ -174,6 +205,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
+ 
+ 
+ 
+ 
+ 
+ 
   /customers/{customer_id}:
     get:
       tags: [Customers]
@@ -197,6 +234,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
+    
+    
+    
+    
     put:
       tags: [Customers]
       summary: Update a customer
@@ -221,6 +262,9 @@ paths:
                 $ref: '#/components/schemas/Customer'
         '404':
           description: Not Found
+    
+    
+    
     delete:
       tags: [Customers]
       summary: Delete a customer
@@ -239,6 +283,11 @@ paths:
                 $ref: '#/components/schemas/Message'
         '404':
           description: Not Found
+ 
+ 
+ 
+ 
+ 
   /customers/{customer_id}/service_tickets:
     get:
       tags: [Customers]
@@ -262,6 +311,10 @@ paths:
                   $ref: '#/components/schemas/ServiceTicket'
         '404':
           description: Not Found
+  
+  
+  
+  
   /mechanics/:
     post:
       tags: [Mechanic]
@@ -281,6 +334,10 @@ paths:
                 $ref: '#/components/schemas/Mechanic'
         '400':
           description: Validation error
+    
+    
+    
+    
     get:
       tags: [Mechanic]
       summary: List mechanics
@@ -293,6 +350,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Mechanic'
+ 
+ 
+ 
+ 
   /mechanics/login:
     post:
       tags: [Mechanic]
@@ -323,6 +384,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
+  
+  
+  
   /mechanics/{mechanic_id}:
     put:
       tags: [Mechanic]
@@ -352,6 +416,10 @@ paths:
           description: Forbidden
         '404':
           description: Not Found
+    
+    
+    
+    
     delete:
       tags: [Mechanic]
       summary: Delete mechanic
@@ -368,8 +436,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-        '404':
-          description: Not Found
+      '404':
+        description: Not Found
+
   /mechanics/popular:
     get:
       tags: [Mechanic]
@@ -383,64 +452,70 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Mechanic'
+
   /service_tickets/:
     post:
-      tags: [ServiceTickets]
-      summary: Create service ticket
-      requestBody:
-        required: true
+    tags: [ServiceTickets]
+    summary: Create service ticket
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServiceTicket'
+    responses:
+      '201':
+        description: Created
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/ServiceTicket'
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceTicket'
-        '400':
-          description: Validation error
-    get:
-      tags: [ServiceTickets]
-      summary: List service tickets
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ServiceTicket'
-  /service_tickets/{service_ticket_id}:
-    put:
-      tags: [ServiceTickets]
-      summary: Add/remove mechanics on ticket
-      parameters:
-        - in: path
-          name: service_ticket_id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
+      '400':
+        description: Validation error
+  
+  
+  get:
+    tags: [ServiceTickets]
+    summary: List service tickets
+    responses:
+      '200':
+        description: OK
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditTicket'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
+              type: array
+              items:
                 $ref: '#/components/schemas/ServiceTicket'
-        '400':
-          description: Validation error
-        '404':
-          description: Not Found
+
+
+
+  /service_tickets/{service_ticket_id}:
+    put:
+    tags: [ServiceTickets]
+    summary: Add/remove mechanics on ticket
+    parameters:
+      - in: path
+        name: service_ticket_id
+        schema:
+          type: integer
+        required: true
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EditTicket'
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceTicket'
+      '400':
+        description: Validation error
+      '404':
+        description: Not Found
     delete:
       tags: [ServiceTickets]
       summary: Delete a service ticket
@@ -459,6 +534,7 @@ paths:
                 $ref: '#/components/schemas/Message'
         '404':
           description: Not Found
+
   /inventory/:
     post:
       tags: [Inventory]
@@ -478,6 +554,8 @@ paths:
                 $ref: '#/components/schemas/Inventory'
         '400':
           description: Validation error
+   
+   
     get:
       tags: [Inventory]
       summary: List inventory items
@@ -490,6 +568,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Inventory'
+  
   /inventory/{inventory_id}:
     put:
       tags: [Inventory]
@@ -515,11 +594,14 @@ paths:
                 $ref: '#/components/schemas/Inventory'
         '404':
           description: Not Found
+    
+    
+    
     delete:
       tags: [Inventory]
       summary: Delete inventory item
       parameters:
-        - in: path
+        - in: path 
           name: inventory_id
           schema:
             type: integer
